@@ -1,12 +1,12 @@
 import gym
-from simple_dqn_torch_2020 import Agent
-from utils import plotLearning
+from dqn_agent import DQNAgent
+from utils import plot_learning
 import numpy as np
 
 if __name__ == '__main__':
     env = gym.make('LunarLander-v2')
-    agent = Agent(gamma=0.99, epsilon=1.0, batch_size=64, n_actions=4,
-                  eps_end=0.01, input_dims=[8], lr=0.001)
+    agent = DQNAgent(gamma=0.99, epsilon=1.0, batch_size=64, n_actions=4,
+                     eps_end=0.01, input_dims=[8], lr=0.001)
     scores, eps_history = [], []
     n_games = 500
 
@@ -30,6 +30,6 @@ if __name__ == '__main__':
               'epsilon %.2f' % agent.epsilon)
 
     x = [i+1 for i in range(n_games)]
-    filename = 'lunar_lander_2020 (lr=0.003).png'
-    plotLearning(x, scores, eps_history, filename)
+    filename = 'lunar_lander_2020_sampled_replay.png'
+    plot_learning(x, scores, eps_history, filename)
 

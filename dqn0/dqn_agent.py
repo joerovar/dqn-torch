@@ -3,11 +3,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
+import os
 
 
 class DeepQNetwork(nn.Module):
-    def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions):
+    def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions, chkpt_dir, name):
         super(DeepQNetwork, self).__init__()
+
+        self.checkpoint_dir = chkpt_dir
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name)
+
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
         self.fc2_dims = fc2_dims
@@ -16,6 +21,7 @@ class DeepQNetwork(nn.Module):
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
         self.fc3 = nn.Linear(self.fc2_dims, self.n_actions)
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
+        # self.optimizer = optim.RMSprop(self.parameter(), lr=lr)
         self.loss = nn.MSELoss()
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
         self.to(self.device)
@@ -27,8 +33,17 @@ class DeepQNetwork(nn.Module):
 
         return actions
 
+    def save_checkpoint(self):
+        print('..saving checkpoint...')
+        T.save(self.state_dict(), self.checkpoint_file)
+        return
 
-class Agent:
+    def load_checkpoint(self):
+        print('...loading checkpoint...')
+        self.load_state_dict(T.load(self.checkpoint_file))
+
+
+class DQNAgent:
     def __init__(self, gamma, epsilon, lr, input_dims, batch_size, n_actions,
                  max_mem_size=100000, eps_end=0.01, eps_dec=5e-4):
         self.gamma = gamma
