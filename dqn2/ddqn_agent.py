@@ -6,18 +6,17 @@ import torch as T
 
 class DDQNAgent:
     def __init__(self, gamma, epsilon, lr, input_dims, batch_size, n_actions,
-                 max_mem_size=100000, eps_end=0.01, eps_dec=5e-4, replace=1000,
+                 mem_size, eps_min=0.01, eps_dec=5e-5, replace=500,
                  algo=None, env_name=None, chkpt_dir='tmp/dqn'):
         self.gamma = gamma
         self.epsilon = epsilon
-        self.eps_min = eps_end
+        self.eps_min = eps_min
         self.eps_dec = eps_dec
         self.replace_target_cnt = replace
         self.input_dims = input_dims
         self.lr = lr
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]
-        self.mem_size = max_mem_size
         self.batch_size = batch_size
         self.mem_cntr = 0
         # counter!
@@ -25,7 +24,7 @@ class DDQNAgent:
         self.env_name = env_name
         self.chkpt_dir = chkpt_dir
         self.learn_step_counter = 0
-        self.memory = ReplayBuffer(max_mem_size, input_dims, n_actions)
+        self.memory = ReplayBuffer(mem_size, input_dims, n_actions)
         self.Q_eval = DeepQNetwork(self.lr, n_actions=n_actions,
                                    input_dims=self.input_dims,
                                    fc1_dims=256, fc2_dims=256,
@@ -37,12 +36,6 @@ class DDQNAgent:
                                    name=self.env_name + '_' + self.algo + '_q_next',
                                    chkpt_dir=self.chkpt_dir)
 
-        # self.state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
-        # self.new_state_memory = np.zeros((self.mem_size, *input_dims),
-        #                                  dtype=np.float32)
-        # self.action_memory = np.zeros(self.mem_size, dtype=np.int32)
-        # self.reward_memory = np.zeros(self.mem_size, dtype=np.float32)
-        # self.terminal_memory = np.zeros(self.mem_size, dtype=np.bool)
     def choose_action(self, observation):
         if np.random.random() > self.epsilon:
             state = T.tensor([observation]).to(self.Q_eval.device)
@@ -55,12 +48,6 @@ class DDQNAgent:
 
     def store_transition(self, state, action, reward, state_, done):
         self.memory.store_transition(state, action, reward, state_, done)
-        # index = self.mem_cntr % self.mem_size
-        # self.state_memory[index] = state
-        # self.new_state_memory[index] = state_
-        # self.reward_memory[index] = reward
-        # self.action_memory[index] = action
-        # self.terminal_memory[index] = done
 
         self.mem_cntr += 1
 

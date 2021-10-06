@@ -1,17 +1,17 @@
 import gym
-from dueling_dqn_agent import DuelingDQNAgent
+from ddqn_agent import DDQNAgent
 from utils import plot_learning
 import numpy as np
 
 if __name__ == '__main__':
     env = gym.make('LunarLander-v2')
     best_score = -np.inf
-    agent = DuelingDQNAgent(gamma=0.99, epsilon=1.0, batch_size=64, n_actions=4,
-                            eps_end=0.01, input_dims=[8], lr=0.001, max_mem_size=50000,
-                            chkpt_dir='models/', algo='DuelingDQNAgent', env_name='LunarLander-v2')
+    agent = DDQNAgent(gamma=0.99, epsilon=1.0, batch_size=64, n_actions=4,
+                     eps_min=0.1, input_dims=[8], lr=0.001, mem_size=50000,
+                     chkpt_dir='models/', algo='DDQNAgent', env_name='LunarLander-v2')
     scores, eps_history, steps_array = [], [], []
     load_checkpoint = False
-    n_games = 300
+    n_games = 400
 
     if load_checkpoint:
         agent.load_models()

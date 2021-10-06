@@ -3,15 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
-import os
 
 
 class DeepQNetwork(nn.Module):
-    def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions, chkpt_dir, name):
+    def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions):
         super(DeepQNetwork, self).__init__()
-
-        self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name)
 
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -45,14 +41,14 @@ class DeepQNetwork(nn.Module):
 
 class DQNAgent:
     def __init__(self, gamma, epsilon, lr, input_dims, batch_size, n_actions,
-                 max_mem_size=100000, eps_end=0.01, eps_dec=5e-4):
+                 max_mem=50000, eps_min=0.1, eps_dec=5e-5):
         self.gamma = gamma
         self.epsilon = epsilon
-        self.eps_min = eps_end
+        self.eps_min = eps_min
         self.eps_dec = eps_dec
         self.lr = lr
         self.action_space = [i for i in range(n_actions)]
-        self.mem_size = max_mem_size
+        self.mem_size = max_mem
         self.batch_size = batch_size
         self.mem_cntr = 0
         # counter!
