@@ -18,7 +18,6 @@ class DuelingDDQNAgent:
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]
         self.batch_size = batch_size
-        self.mem_cntr = 0
         # counter!
         self.algo = algo
         self.env_name = env_name
@@ -48,8 +47,6 @@ class DuelingDDQNAgent:
 
     def store_transition(self, state, action, reward, state_, done):
         self.memory.store_transition(state, action, reward, state_, done)
-
-        self.mem_cntr += 1
 
     def sample_memory(self):
         state, action, reward, new_state, done = \
@@ -83,7 +80,7 @@ class DuelingDDQNAgent:
         self.Q_next.load_checkpoint()
 
     def learn(self):
-        if self.mem_cntr < self.batch_size:
+        if self.memory.mem_cntr < self.batch_size:
             return
         self.Q_eval.optimizer.zero_grad()
 
